@@ -2,6 +2,8 @@ import React from 'react'
 
 import Layout from '../components/layout'
 import SEO from '../components/seo'
+import { FaCheckCircle } from 'react-icons/fa';
+import { IconContext } from "react-icons";
 
 import styled from '@emotion/styled'
 
@@ -55,6 +57,12 @@ const SubmitButton = styled.button`
   }
 `
 
+const SuccessContainer = styled.div`
+  display: flex;
+  justify-content: space-around;
+  margin-top: 5em;
+`
+
 const options = [
   { emoji: '😩', label: 'bad' },
   { emoji: '😔', label: 'worse than normal' },
@@ -71,11 +79,17 @@ class IndexPage extends React.Component {
   }
 
   onSubmit = index => async () => {
-    const { data } = await this.getMoodsForUser("jakepartusch@gmail.com");
-    data.allMoodData[new Date().toLocaleDateString()] = index
-    data.timestamp = new Date().toISOString();
-
-    await this.createMoodEntry(data)
+    this.setState({ loading: true })
+    try {
+      const { data } = await this.getMoodsForUser("jakepartusch@gmail.com");
+      data.allMoodData[new Date().toLocaleDateString()] = index
+      data.timestamp = new Date().toISOString();
+      await this.createMoodEntry(data)
+      this.setState({ loading: false, submitted: true, index: undefined });
+      setTimeout(() => this.setState({ submitted: false }), 1000);
+    } catch(e) {
+      console.error(e);
+    }
   }
 
   async getMoodsForUser(user) {
@@ -97,29 +111,41 @@ class IndexPage extends React.Component {
   }
 
   render() {
-    const { index } = this.state
+    const { index, loading, submitted } = this.state
     return (
       <Layout>
         <SEO title="Home" keywords={[`gatsby`, `application`, `react`]} />
-        <Header>How was today?</Header>
-        <EmojiWrapper>
-          {options.map((option, i) => (
-            <EmojiButton
-              key={option.label}
-              selected={index === i}
-              onClick={this.onButtonSelected(i)}
-            >
-              <span role="img" aria-label={option.label}>
-                {option.emoji}
-              </span>
-            </EmojiButton>
-          ))}
-        </EmojiWrapper>
-        <ButtonWrapper>
-          <SubmitButton type="button" onClick={this.onSubmit(index)}>
-            Submit
-          </SubmitButton>
-        </ButtonWrapper>
+        { submitted && 
+          <IconContext.Provider value={{ color: "green", size: '10em'}}>
+            <SuccessContainer>
+              <FaCheckCircle />
+            </SuccessContainer>
+          </IconContext.Provider>
+        }
+        { loading && <div></div> }
+        { !loading && !submitted &&
+          <React.Fragment>
+            <Header>How was today?</Header>
+            <EmojiWrapper>
+              {options.map((option, i) => (
+                <EmojiButton
+                  key={option.label}
+                  selected={index === i}
+                  onClick={this.onButtonSelected(i)}
+                >
+                  <span role="img" aria-label={option.label}>
+                    {option.emoji}
+                  </span>
+                </EmojiButton>
+              ))}
+            </EmojiWrapper>
+            <ButtonWrapper>
+              <SubmitButton type="button" onClick={this.onSubmit(index)}>
+                Submit
+              </SubmitButton>
+            </ButtonWrapper>
+          </React.Fragment>
+        }
       </Layout>
     )
   }

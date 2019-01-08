@@ -20,7 +20,8 @@ const EmojiButton = styled.button`
   line-height: 46px;
   background: none;
   border: none;
-  ${props => props.selected ? 'border-radius: 5px; border: 2px solid #0675B8;' : ''}
+  ${props =>
+    props.selected ? 'border-radius: 5px; border: 2px solid #0675B8;' : ''}
 `
 
 const EmojiWrapper = styled.div`
@@ -38,56 +39,88 @@ const SubmitButton = styled.button`
   width: 100%;
   text-align: center;
   font-weight: bold;
-  color:#fff;
+  color: #fff;
   text-decoration: none;
-  background-color: #0675B8;
-  padding:10px 5px;
+  background-color: #0675b8;
+  padding: 10px 5px;
   border-radius: 5px;
   box-sizing: border-box;
-  border: 5px solid #0675B8;
+  border: 5px solid #0675b8;
   box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 0.15);
   transition: all 0.15s ease 0s;
   :hover {
     background-color: #fff;
-    color:#0675B8;
+    color: #0675b8;
     font-weight: bold;
   }
 `
 
 const options = [
-  { emoji: '😩', label: 'bad'},
-  { emoji: '😔', label: 'worse than normal'},
-  { emoji: '😐', label: 'normal'},
-  { emoji: '🙂', label: 'better than normal'},
-  { emoji: '😄', label: 'good'}
+  { emoji: '😩', label: 'bad' },
+  { emoji: '😔', label: 'worse than normal' },
+  { emoji: '😐', label: 'normal' },
+  { emoji: '🙂', label: 'better than normal' },
+  { emoji: '😄', label: 'good' },
 ]
 
 class IndexPage extends React.Component {
-  state = {};
+  state = {}
 
   onButtonSelected = index => () => {
     this.setState({ index })
   }
 
-  onSubmit = index => () => {
-    const allMoodData = JSON.parse(localStorage.getItem('mood-data')) || {}
-    allMoodData[new Date().toLocaleDateString()] = index;
-    localStorage.setItem('mood-data', JSON.stringify(allMoodData))
+  onSubmit = index => async () => {
+    const { data } = await this.getMoodsForUser("jakepartusch@gmail.com");
+    data.allMoodData[new Date().toLocaleDateString()] = index
+    data.timestamp = new Date().toISOString();
+
+    await this.createMoodEntry(data)
+  }
+
+  async getMoodsForUser(user) {
+    const response = await fetch('/.netlify/functions/getMoodData', {
+      body: user,
+      method: 'POST',
+    })
+
+    return response.json()
+  }
+
+  async createMoodEntry(data) {
+    const response = await fetch('/.netlify/functions/updateMoodData', {
+      body: JSON.stringify(data),
+      method: 'POST',
+    })
+
+    return response.json()
   }
 
   render() {
-    const { index } = this.state;
+    const { index } = this.state
     return (
       <Layout>
-      <SEO title="Home" keywords={[`gatsby`, `application`, `react`]} />
-      <Header>How was today?</Header>
-      <EmojiWrapper>
-        { options.map((option, i)=> <EmojiButton key={option.label} selected={index === i} onClick={this.onButtonSelected(i)}><span role="img" aria-label={option.label}>{option.emoji}</span></EmojiButton>)}
-      </EmojiWrapper>
-      <ButtonWrapper>
-        <SubmitButton type="button" onClick={this.onSubmit(index)}>Submit</SubmitButton>
-      </ButtonWrapper>
-    </Layout>
+        <SEO title="Home" keywords={[`gatsby`, `application`, `react`]} />
+        <Header>How was today?</Header>
+        <EmojiWrapper>
+          {options.map((option, i) => (
+            <EmojiButton
+              key={option.label}
+              selected={index === i}
+              onClick={this.onButtonSelected(i)}
+            >
+              <span role="img" aria-label={option.label}>
+                {option.emoji}
+              </span>
+            </EmojiButton>
+          ))}
+        </EmojiWrapper>
+        <ButtonWrapper>
+          <SubmitButton type="button" onClick={this.onSubmit(index)}>
+            Submit
+          </SubmitButton>
+        </ButtonWrapper>
+      </Layout>
     )
   }
 }

@@ -6,6 +6,7 @@ import { FaCheckCircle } from 'react-icons/fa';
 import { IconContext } from "react-icons";
 
 import styled from '@emotion/styled'
+import netlifyIdentity from "netlify-identity-widget"
 
 const Header = styled.h1`
   text-align: center;
@@ -74,6 +75,23 @@ const options = [
 class IndexPage extends React.Component {
   state = {}
 
+  componentDidMount() {
+    window.netlifyIdentity = netlifyIdentity
+    // You must run this once before trying to interact with the widget
+    netlifyIdentity.init({
+      container: "#netlify-identity-modal" // defaults to document.body,
+    });
+    netlifyIdentity.open(); // open the modal
+
+    const currentUser = netlifyIdentity.currentUser();
+    if(currentUser) {
+      this.setState({authenticated: true});
+    }
+
+    netlifyIdentity.on("init", user => console.log(user));
+    netlifyIdentity.on("login", user => this.setState({authenticated: true}));
+  }
+
   onButtonSelected = index => () => {
     this.setState({ index })
   }
@@ -81,7 +99,8 @@ class IndexPage extends React.Component {
   onSubmit = index => async () => {
     this.setState({ loading: true })
     try {
-      const { data } = await this.getMoodsForUser("jakepartusch@gmail.com");
+      const { email } = netlifyIdentity.currentUser();
+      const { data } = await this.getMoodsForUser(email);
       data.allMoodData[new Date().toLocaleDateString()] = index
       data.timestamp = new Date().toISOString();
       await this.createMoodEntry(data)
@@ -111,7 +130,11 @@ class IndexPage extends React.Component {
   }
 
   render() {
-    const { index, loading, submitted } = this.state
+    const { index, loading, submitted, authenticated } = this.state;
+    
+    if(!authenticated) {
+      return <div id="netlify-identity-modal"/>
+    }
     return (
       <Layout>
         <SEO title="Home" keywords={[`gatsby`, `application`, `react`]} />

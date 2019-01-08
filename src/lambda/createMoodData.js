@@ -5,18 +5,17 @@ const client = new faunadb.Client({
   secret: process.env.FAUNA_DB_SECRET,
 })
 
-
 exports.handler = async event => {
+  const data = JSON.parse(event.body)
 
-  const user = event.body
+  const item = { data }
 
   try {
-    const response = await client.query(q.Paginate(q.Match(q.Index("daily_moods_by_user"), user)))
-    const item = await client.query(q.Get(response.data[0]));
-  
+    const response = await client.query(q.Create(q.Ref('classes/Daily_Moods'), item))
+    
     return {
       statusCode: 200,
-      body: JSON.stringify(item),
+      body: JSON.stringify(response),
     }
   } catch (e) {
     console.error('error', e)

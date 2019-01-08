@@ -98,17 +98,31 @@ class IndexPage extends React.Component {
 
   onSubmit = index => async () => {
     this.setState({ loading: true })
-    try {
-      const { email } = netlifyIdentity.currentUser();
-      const { data } = await this.getMoodsForUser(email);
-      data.allMoodData[new Date().toLocaleDateString()] = index
-      data.timestamp = new Date().toISOString();
-      await this.createMoodEntry(data)
-      this.setState({ loading: false, submitted: true, index: undefined });
-      setTimeout(() => this.setState({ submitted: false }), 1000);
-    } catch(e) {
-      console.error(e);
+    const { email } = netlifyIdentity.currentUser();
+    let isNew = false;
+    let entry = await this.getMoodsForUser(email);
+    if(!entry ) {
+      isNew = true;
+      entry = {
+        allMoodData: {},
+        user: email
+      }
     }
+    entry = this.addUpdatedData(entry, index);
+    if(isNew) {
+      await this.createMoodData(entry);
+    } else {
+      await this.updateMoodData(entry);
+    }
+    this.setState({ loading: false, submitted: true, index: undefined });
+    setTimeout(() => this.setState({ submitted: false }), 1000);
+  }
+
+  addUpdatedData = (entry, index) => {
+    const newEntry = { ...entry };
+    newEntry.allMoodData[new Date().toLocaleDateString()] = index
+    newEntry.timestamp = new Date().toISOString();
+    return newEntry;
   }
 
   async getMoodsForUser(user) {
@@ -117,11 +131,21 @@ class IndexPage extends React.Component {
       method: 'POST',
     })
 
+    const { data } = await response.json()
+    return data;
+  }
+
+  async updateMoodData(data) {
+    const response = await fetch('/.netlify/functions/updateMoodData', {
+      body: JSON.stringify(data),
+      method: 'POST',
+    })
+
     return response.json()
   }
 
-  async createMoodEntry(data) {
-    const response = await fetch('/.netlify/functions/updateMoodData', {
+  async createMoodData(data) {
+    const response = await fetch('/.netlify/functions/createMoodData', {
       body: JSON.stringify(data),
       method: 'POST',
     })

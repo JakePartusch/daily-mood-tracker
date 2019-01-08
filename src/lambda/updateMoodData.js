@@ -1,4 +1,4 @@
-const faunadb = require('faunadb');
+import faunadb from 'faunadb';
 
 const q = faunadb.query
 const client = new faunadb.Client({
@@ -6,15 +6,16 @@ const client = new faunadb.Client({
 })
 
 exports.handler = async event => {
-  const user = event.body
+  const data = JSON.parse(event.body)
+
+  const item = { data }
 
   try {
-    const response = await client.query(q.Paginate(q.Match(q.Index("daily_moods_by_user"), user)))
-    const item = await client.query(q.Get(response.data[0]));
-  
+    const response = await client.query(q.Update(q.Ref('classes/Daily_Moods'), item))
+    
     return {
       statusCode: 200,
-      body: JSON.stringify(item),
+      body: JSON.stringify(response),
     }
   } catch (e) {
     console.error('error', e)

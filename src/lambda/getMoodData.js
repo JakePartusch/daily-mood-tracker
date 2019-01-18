@@ -1,22 +1,22 @@
-import faunadb from 'faunadb';
+import { request } from 'graphql-request'
 
-const q = faunadb.query
-const client = new faunadb.Client({
-  secret: process.env.FAUNA_DB_SECRET,
-})
-
+const url = process.env.api;
 
 exports.handler = async event => {
-
   const user = event.body
-
+  
+  const query = `{
+    moodData(user: "${user}") {
+      entryDate
+      status
+    }
+  }`
   try {
-    const response = await client.query(q.Paginate(q.Match(q.Index("daily_moods_by_user"), user)))
-    const item = await client.query(q.Get(response.data[0]));
+    const response = await request(url, query)
   
     return {
       statusCode: 200,
-      body: JSON.stringify(item),
+      body: JSON.stringify(response),
     }
   } catch (e) {
     console.error('error', e)

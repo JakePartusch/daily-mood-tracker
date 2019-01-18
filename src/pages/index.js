@@ -7,6 +7,7 @@ import { IconContext } from "react-icons";
 
 import styled from '@emotion/styled'
 import netlifyIdentity from "netlify-identity-widget"
+import moment from 'moment';
 
 const Header = styled.h1`
   text-align: center;
@@ -99,30 +100,26 @@ class IndexPage extends React.Component {
   onSubmit = index => async () => {
     this.setState({ loading: true })
     const { email } = netlifyIdentity.currentUser();
-    let isNew = false;
-    let entry = await this.getMoodsForUser(email);
-    if(!entry ) {
-      isNew = true;
-      entry = {
-        allMoodData: {},
-        user: email
-      }
-    }
-    entry = this.addUpdatedData(entry, index);
-    if(isNew) {
-      await this.createMoodData(entry);
+    const moods = await this.getMoodsForUser(email);
+    if(!moods.moodData) {
+      await this.createMoodData({ email, entry : { moodData: [{ entryDate: moment().format('YYYY-MM-DD'), status: `${index}`}]}})
     } else {
-      await this.updateMoodData(entry);
+      this.addUpdatedData(moods, index);
+      await this.updateMoodData({email, entry: moods});
     }
     this.setState({ loading: false, submitted: true, index: undefined });
     setTimeout(() => this.setState({ submitted: false }), 1000);
   }
 
-  addUpdatedData = (entry, index) => {
-    const newEntry = { ...entry };
-    newEntry.allMoodData[new Date().toLocaleDateString()] = index
-    newEntry.timestamp = new Date().toISOString();
-    return newEntry;
+  addUpdatedData = (moods, index) => {
+    const today = moment().format('YYYY-MM-DD')
+    const newMoodEntry = {entryDate: today, status: `${index}`};
+    const matchingEntry = moods.moodData.find(mood => mood.entryDate === today);
+    if(matchingEntry) {
+      moods.moodData.splice(moods.moodData.indexOf(matchingEntry), 1, newMoodEntry);
+    } else {
+      moods.moodData.push(newMoodEntry);
+    }
   }
 
   async getMoodsForUser(user) {
@@ -131,8 +128,7 @@ class IndexPage extends React.Component {
       method: 'POST',
     })
 
-    const { data } = await response.json()
-    return data;
+    return await response.json();
   }
 
   async updateMoodData(data) {

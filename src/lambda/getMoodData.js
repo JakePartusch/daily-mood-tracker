@@ -4,9 +4,8 @@ const url = process.env.api;
 
 exports.handler = async (_, context) => {
   const { user } = context.clientContext;
-  console.log(context)
   const query = `{
-    moodData(user: "${user.id}") {
+    moodData(user: "${user.email}") {
       entryDate
       status
     }

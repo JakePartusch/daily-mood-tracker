@@ -48,10 +48,15 @@ class HistoryGrid extends Component {
         this.setState( { squares });
     }
 
-    getMoodsForUser = async (user) => {
-        const response = await fetch('/.netlify/functions/getMoodData', {
-          body: user,
-          method: 'POST',
+    getMoodsForUser = async () => {
+        const user = netlifyIdentity.currentUser();
+        console.log(user);
+        const response = await fetch('http://localhost:8000/.netlify/functions/getMoodData', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + user.token.access_token,
+          }
         });
         return await response.json();
       }

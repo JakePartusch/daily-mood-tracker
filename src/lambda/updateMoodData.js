@@ -5,7 +5,7 @@ const url = process.env.api;
 exports.handler = async (event, context) => {
   const data = JSON.parse(event.body);
   const { user } = context.clientContext;
-
+  console.log(user)
   const { entry } = data;
   const query = `mutation {
     updateMoodData(user: "${user.id}", moodData: ${JSON.stringify(entry.moodData).replace(/"([^(")"]+)":/g,"$1:")}) {

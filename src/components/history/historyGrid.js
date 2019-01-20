@@ -12,8 +12,7 @@ class HistoryGrid extends Component {
     }
     
     async componentDidMount() {
-        const { email } = netlifyIdentity.currentUser();
-        const response = await this.getMoodsForUser(email);
+        const response = await this.getMoodsForUser();
         const moods = this.getMoodsMatchingMonth(response, moment().month());
         this.createSquaresForMonth(moods);
         this.setState({ moods });

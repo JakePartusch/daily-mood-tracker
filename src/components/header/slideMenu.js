@@ -138,6 +138,14 @@ export default class SlideMenu extends Component {
                 >
                 History
             </Link>
+            <Link
+                to="/logout"
+                aria-label="Logout"
+                onLinkClick={onClose}
+                primary
+                >
+                Logout
+            </Link>
         </Content>
       </Container>
     )

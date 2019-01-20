@@ -8,13 +8,13 @@
     "@emotion/core": "^10.0.6",
     "@emotion/styled": "^10.0.6",
     "faunadb": "^2.5.2",
-    "gatsby": "^2.0.85",
-    "gatsby-image": "^2.0.20",
+    "gatsby": "^2.0.91",
+    "gatsby-image": "^2.0.26",
     "gatsby-plugin-manifest": "^2.0.13",
     "gatsby-plugin-offline": "^2.0.21",
     "gatsby-plugin-react-helmet": "^3.0.2",
     "gatsby-plugin-sharp": "^2.0.17",
-    "gatsby-source-filesystem": "^2.0.8",
+    "gatsby-source-filesystem": "^2.0.16",
     "gatsby-transformer-sharp": "^2.1.10",
     "graphql-request": "^1.8.2",
     "moment": "^2.23.0",
@@ -23,7 +23,7 @@
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "react-helmet": "^5.2.0",
-    "react-icons": "^3.2.2"
+    "react-icons": "^3.3.0"
   },
   "keywords": [
     "gatsby"
@@ -42,9 +42,9 @@
   },
   "devDependencies": {
     "http-proxy-middleware": "^0.19.1",
-    "netlify-lambda": "^1.1.1",
+    "netlify-lambda": "^1.2.0",
     "npm-run-all": "^4.1.5",
-    "prettier": "^1.15.2"
+    "prettier": "^1.16.0"
   },
   "repository": {
     "type": "git",

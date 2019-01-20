@@ -1,0 +1,45 @@
+:root {
+    --square-size: 40px;
+    --square-gap: 5px;
+    --week-width: calc(var(--square-size) + var(--square-gap));
+  }
+  
+  .days { grid-area: days; }
+  .squares { grid-area: squares; }
+  
+  .graph {
+    display: inline-grid;
+    grid-template-areas: "empty months"
+                         "days squares";
+    grid-template-columns: auto 1fr;
+    grid-gap: 10px;
+  }
+  
+  .days,
+  .squares {
+    display: grid;
+    grid-gap: var(--square-gap);
+    grid-template-rows: repeat(7, var(--square-size));
+  }
+  
+  .squares {
+    grid-auto-flow: column;
+    grid-auto-columns: var(--square-size);
+  }
+
+
+  .days li {
+      display: block;
+      font-size: 1.5rem;
+      margin-top: 10px;
+  }
+
+  .days li:nth-child(odd) {
+    visibility: hidden;
+  }
+  
+  .squares li {
+    background-color: #ebedf0;
+    display: inline;
+    margin-bottom: 0;
+  }

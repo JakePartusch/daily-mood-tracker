@@ -2,12 +2,12 @@ import { request } from 'graphql-request'
 
 const url = process.env.api;
 
-exports.handler = async event => {
-  const data = JSON.parse(event.body)
-
-  const { email, entry } = data;
+exports.handler = async (event, context) => {
+  const data = JSON.parse(event.body);
+  const { user } = context.clientContext;
+  const { entry } = data;
   const query = `mutation {
-    updateMoodData(user: "${email}", moodData: ${JSON.stringify(entry.moodData).replace(/"([^(")"]+)":/g,"$1:")}) {
+    updateMoodData(user: "${user.email}", moodData: ${JSON.stringify(entry.moodData).replace(/"([^(")"]+)":/g,"$1:")}) {
       entryDate
       status
     }

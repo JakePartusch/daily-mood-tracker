@@ -2,11 +2,10 @@ import { request } from 'graphql-request'
 
 const url = process.env.api;
 
-exports.handler = async event => {
-  const user = event.body
-  
+exports.handler = async (_, context) => {
+  const { user } = context.clientContext;
   const query = `{
-    moodData(user: "${user}") {
+    moodData(user: "${user.email}") {
       entryDate
       status
     }

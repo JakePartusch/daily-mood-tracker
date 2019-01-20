@@ -12,8 +12,7 @@ class HistoryGrid extends Component {
     }
     
     async componentDidMount() {
-        const { email } = netlifyIdentity.currentUser();
-        const response = await this.getMoodsForUser(email);
+        const response = await this.getMoodsForUser();
         const moods = this.getMoodsMatchingMonth(response, moment().month());
         this.createSquaresForMonth(moods);
         this.setState({ moods });
@@ -48,10 +47,14 @@ class HistoryGrid extends Component {
         this.setState( { squares });
     }
 
-    getMoodsForUser = async (user) => {
+    getMoodsForUser = async () => {
+        const user = netlifyIdentity.currentUser();
         const response = await fetch('/.netlify/functions/getMoodData', {
-          body: user,
-          method: 'POST',
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + user.token.access_token,
+          }
         });
         return await response.json();
       }

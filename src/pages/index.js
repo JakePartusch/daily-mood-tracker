@@ -99,13 +99,12 @@ class IndexPage extends React.Component {
 
   onSubmit = index => async () => {
     this.setState({ loading: true })
-    const { email } = netlifyIdentity.currentUser();
-    const moods = await this.getMoodsForUser(email);
+    const moods = await this.getMoodsForUser();
     if(!moods.moodData) {
-      await this.createMoodData({ email, entry : { moodData: [{ entryDate: moment().format('YYYY-MM-DD'), status: `${index}`}]}})
+      await this.createMoodData({ entry : { moodData: [{ entryDate: moment().format('YYYY-MM-DD'), status: `${index}`}]}})
     } else {
       this.addUpdatedData(moods, index);
-      await this.updateMoodData({email, entry: moods});
+      await this.updateMoodData({entry: moods});
     }
     this.setState({ loading: false, submitted: true, index: undefined });
     setTimeout(() => this.setState({ submitted: false }), 1000);
@@ -122,28 +121,42 @@ class IndexPage extends React.Component {
     }
   }
 
-  async getMoodsForUser(user) {
+  async getMoodsForUser() {
+    const user = netlifyIdentity.currentUser();
     const response = await fetch('/.netlify/functions/getMoodData', {
-      body: user,
-      method: 'POST',
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + user.token.access_token,
+      }
     })
 
     return await response.json();
   }
 
   async updateMoodData(data) {
+    const user = netlifyIdentity.currentUser();
     const response = await fetch('/.netlify/functions/updateMoodData', {
       body: JSON.stringify(data),
       method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + user.token.access_token,
+      }
     })
 
     return response.json()
   }
 
   async createMoodData(data) {
+    const user = netlifyIdentity.currentUser();
     const response = await fetch('/.netlify/functions/createMoodData', {
       body: JSON.stringify(data),
       method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + user.token.access_token,
+      }
     })
 
     return response.json()

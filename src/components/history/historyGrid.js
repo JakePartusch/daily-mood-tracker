@@ -49,11 +49,12 @@ class HistoryGrid extends Component {
 
     getMoodsForUser = async () => {
         const user = netlifyIdentity.currentUser();
+        const jwt = await user.jwt();
         const response = await fetch('/.netlify/functions/getMoodData', {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
-            'Authorization': 'Bearer ' + user.token.access_token,
+            'Authorization': 'Bearer ' + jwt,
           }
         });
         return await response.json();

@@ -123,11 +123,12 @@ class IndexPage extends React.Component {
 
   async getMoodsForUser() {
     const user = netlifyIdentity.currentUser();
+    const jwt = await user.jwt();
     const response = await fetch('/.netlify/functions/getMoodData', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'Authorization': 'Bearer ' + user.token.access_token,
+        'Authorization': 'Bearer ' + jwt,
       }
     })
 
@@ -136,12 +137,13 @@ class IndexPage extends React.Component {
 
   async updateMoodData(data) {
     const user = netlifyIdentity.currentUser();
+    const jwt = await user.jwt();
     const response = await fetch('/.netlify/functions/updateMoodData', {
       body: JSON.stringify(data),
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Authorization': 'Bearer ' + user.token.access_token,
+        'Authorization': 'Bearer ' + jwt,
       }
     })
 
@@ -150,12 +152,13 @@ class IndexPage extends React.Component {
 
   async createMoodData(data) {
     const user = netlifyIdentity.currentUser();
+    const jwt = await user.jwt();
     const response = await fetch('/.netlify/functions/createMoodData', {
       body: JSON.stringify(data),
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Authorization': 'Bearer ' + user.token.access_token,
+        'Authorization': 'Bearer ' + jwt,
       }
     })
 
